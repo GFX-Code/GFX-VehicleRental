@@ -62,6 +62,10 @@ RegisterNetEvent("gfx-rental:client:spawnVehicle", function(vehicleData)
         SetEntityAsMissionEntity(veh, true, true)
         SetVehicleDoorsLocked(veh, 1)
 
+        if Config.VehicleKeys == 'renewed' then
+            exports['Renewed-Vehiclekeys']:addKey(plate)
+        end
+
         table.insert(spawnedVehicles, { vehicle = veh, plate = plate, model = car.model, price = price })
         QBCore.Functions.Notify("Rental successful!", "success")
     else

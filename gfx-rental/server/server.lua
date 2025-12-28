@@ -16,6 +16,17 @@ local function GeneratePlate()
     return "RENT"..math.random(1000,9999)
 end
 
+local function GiveVehicleKeys(src, plate)
+    if Config.VehicleKeys == 'renewed' then
+        exports['Renewed-Vehiclekeys']:addKey(plate, src)
+    else
+        local Player = QBCore.Functions.GetPlayer(src)
+        if Player then
+            Player.Functions.AddItem("vehiclekeys", 1, false, { plate = plate })
+        end
+    end
+end
+
 RegisterNetEvent("gfx-rental:server:startRental", function(car)
     if not ProtectedEvent() then return end
     local src = source
@@ -32,7 +43,8 @@ RegisterNetEvent("gfx-rental:server:startRental", function(car)
     playerKeyPlates[src] = playerKeyPlates[src] or {}
     table.insert(playerKeyPlates[src], plate)
 
-    Player.Functions.AddItem("vehiclekeys", 1, false, { plate = plate })
+    GiveVehicleKeys(src, plate)
+    
     if Config.RentalItem then
         Player.Functions.AddItem(Config.RentalItem, 1, false, { plate = plate })
     end
@@ -76,11 +88,28 @@ RegisterNetEvent("gfx-rental:server:attemptReturn", function(plate)
         return
     end
 
-    local hasKeys, hasPapers = false, false
-    for _, item in pairs(Player.PlayerData.items or {}) do
-        local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)
-        if item.name == "vehiclekeys" and itemPlate == plate then hasKeys = true end
-        if item.name == Config.RentalItem and itemPlate == plate then hasPapers = true end
+    local hasKeys, hasPapers = true, true
+    
+    if Config.VehicleKeys ~= 'renewed' then
+        hasKeys = false
+        for _, item in pairs(Player.PlayerData.items or {}) do
+            local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)
+            if item.name == "vehiclekeys" and itemPlate == plate then
+                hasKeys = true
+                break
+            end
+        end
+    end
+    
+    if Config.RentalItem then
+        hasPapers = false
+        for _, item in pairs(Player.PlayerData.items or {}) do
+            local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)
+            if item.name == Config.RentalItem and itemPlate == plate then
+                hasPapers = true
+                break
+            end
+        end
     end
 
     if not hasKeys or not hasPapers then
@@ -93,13 +122,18 @@ RegisterNetEvent("gfx-rental:server:attemptReturn", function(plate)
     Player.Functions.AddMoney("cash", refund)
     TriggerClientEvent("QBCore:Notify", src, "Vehicle returned. You received $"..refund.." back.", "success")
 
-    for _, item in pairs(Player.PlayerData.items or {}) do
-        local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)
-        if item.name == "vehiclekeys" and itemPlate == plate then
-            Player.Functions.RemoveItem(item.name, 1, item.slot)
-            break
+    if Config.VehicleKeys == 'renewed' then
+        exports['Renewed-Vehiclekeys']:removeKey(plate, src)
+    else
+        for _, item in pairs(Player.PlayerData.items or {}) do
+            local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)
+            if item.name == "vehiclekeys" and itemPlate == plate then
+                Player.Functions.RemoveItem(item.name, 1, item.slot)
+                break
+            end
         end
     end
+    
     if Config.RentalItem then
         for _, item in pairs(Player.PlayerData.items or {}) do
             local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)

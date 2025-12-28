@@ -2,6 +2,9 @@ Config = {}
 
 Config.RentalItem = "rental_papers"
 
+-- Vehicle Keys System: 'qbx' = qbx_vehiclekeys (item or default version, both work), 'renewed' = Renewed-Vehiclekeys
+Config.VehicleKeys = 'qbx'
+
 Config.PedModel = "u_m_y_smugmech_01"
 
 Config.RentalLocations = {

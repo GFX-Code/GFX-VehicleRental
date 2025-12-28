@@ -3,6 +3,9 @@
 - 50% of the money back when returning the vehicle
 - Keys and papers have data for the vehicle plate
 
+# Update 1.0.1
+- Added support for Renewed Vehiclekeys
+
 # Preview
 
 https://youtu.be/HblYkloTic4

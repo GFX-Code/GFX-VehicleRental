@@ -18,7 +18,7 @@ end
 
 local function GiveVehicleKeys(src, plate)
     if Config.VehicleKeys == 'renewed' then
-        exports['Renewed-Vehiclekeys']:addKey(plate, src)
+        exports['Renewed-Vehiclekeys']:addKey(src, plate)
     else
         local Player = QBCore.Functions.GetPlayer(src)
         if Player then
@@ -123,7 +123,7 @@ RegisterNetEvent("gfx-rental:server:attemptReturn", function(plate)
     TriggerClientEvent("QBCore:Notify", src, "Vehicle returned. You received $"..refund.." back.", "success")
 
     if Config.VehicleKeys == 'renewed' then
-        exports['Renewed-Vehiclekeys']:removeKey(plate, src)
+        exports['Renewed-Vehiclekeys']:removeKey(src, plate)
     else
         for _, item in pairs(Player.PlayerData.items or {}) do
             local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)

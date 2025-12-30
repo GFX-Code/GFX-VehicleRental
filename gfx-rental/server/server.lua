@@ -21,12 +21,11 @@ local function GiveVehicleKeys(src, plate, vehicle)
     if Config.VehicleKeys == 'renewed' then
         exports['Renewed-Vehiclekeys']:addKey(src, plate)
     elseif Config.VehicleKeys == 'qbx' then
-        -- Standard qbx_vehiclekeys support
+        -- this is the standard qbx_vehiclekeys support as i use a version that works with item-based keys
         if vehicle and DoesEntityExist(vehicle) then
             exports.qbx_vehiclekeys:GiveKeys(src, vehicle)
         end
     else
-        -- Fallback for old QB
         local Player = QBCore.Functions.GetPlayer(src)
         if Player then
             Player.Functions.AddItem("vehiclekeys", 1, false, { plate = plate })
@@ -141,9 +140,6 @@ RegisterNetEvent("gfx-rental:server:attemptReturn", function(plate)
     if Config.VehicleKeys == 'renewed' then
         exports['Renewed-Vehiclekeys']:removeKey(src, plate)
     elseif Config.VehicleKeys == 'qbx' then
-        -- For qbx_vehiclekeys, the keys are handled by the resource itself
-        -- Keys will be removed when vehicle is deleted if using item-based keys
-        -- or will be removed from state when player loses access
     else
         for _, item in pairs(Player.PlayerData.items or {}) do
             local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)

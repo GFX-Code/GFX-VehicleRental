@@ -27,10 +27,9 @@ local function SpawnRentalPed(coords, heading)
     SetPedCanEvasiveDive(ped, false)
     SetPedFleeAttributes(ped, 0, false)
 
-    local modelOffset = 60.0 
-    SetEntityHeading(ped, heading + modelOffset)
-
     TaskStartScenarioInPlace(ped, "WORLD_HUMAN_CLIPBOARD", 0, true)
+    
+    SetEntityHeading(ped, heading)
 
     FreezeEntityPosition(ped, true)
     SetModelAsNoLongerNeeded(pedModel)
@@ -62,11 +61,9 @@ RegisterNetEvent("gfx-rental:client:spawnVehicle", function(vehicleData)
         SetEntityAsMissionEntity(veh, true, true)
         SetVehicleDoorsLocked(veh, 1)
 
-        -- Give keys after vehicle is spawned
         if Config.VehicleKeys == 'renewed' then
             exports['Renewed-Vehiclekeys']:addKey(plate)
         elseif Config.VehicleKeys == 'qbx' then
-            -- Wait for vehicle to be networked then give keys on server
             local netId = NetworkGetNetworkIdFromEntity(veh)
             TriggerServerEvent("gfx-rental:server:giveKeysAfterSpawn", plate, netId)
         end
@@ -142,7 +139,7 @@ end)
 CreateThread(function()
     for _, data in ipairs(Config.RentalLocations) do
         local loc = data.coords
-        local ped = SpawnRentalPed(loc, 0.0)
+        local ped = SpawnRentalPed(loc, loc.w)
         rentalPeds[#rentalPeds + 1] = ped
 
         if data.blip then

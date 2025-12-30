@@ -1,3 +1,4 @@
+
 local QBCore = exports['qb-core']:GetCoreObject()
 local playerKeyPlates = {}
 local rentedVehicles = {}
@@ -16,10 +17,16 @@ local function GeneratePlate()
     return "RENT"..math.random(1000,9999)
 end
 
-local function GiveVehicleKeys(src, plate)
+local function GiveVehicleKeys(src, plate, vehicle)
     if Config.VehicleKeys == 'renewed' then
         exports['Renewed-Vehiclekeys']:addKey(src, plate)
+    elseif Config.VehicleKeys == 'qbx' then
+        -- Standard qbx_vehiclekeys support
+        if vehicle and DoesEntityExist(vehicle) then
+            exports.qbx_vehiclekeys:GiveKeys(src, vehicle)
+        end
     else
+        -- Fallback for old QB
         local Player = QBCore.Functions.GetPlayer(src)
         if Player then
             Player.Functions.AddItem("vehiclekeys", 1, false, { plate = plate })
@@ -42,8 +49,6 @@ RegisterNetEvent("gfx-rental:server:startRental", function(car)
 
     playerKeyPlates[src] = playerKeyPlates[src] or {}
     table.insert(playerKeyPlates[src], plate)
-
-    GiveVehicleKeys(src, plate)
     
     if Config.RentalItem then
         Player.Functions.AddItem(Config.RentalItem, 1, false, { plate = plate })
@@ -54,6 +59,17 @@ RegisterNetEvent("gfx-rental:server:startRental", function(car)
     activeRentals[src][plate] = true
 
     TriggerClientEvent("gfx-rental:client:spawnVehicle", src, { car = car, plate = plate, price = car.price })
+end)
+
+RegisterNetEvent("gfx-rental:server:giveKeysAfterSpawn", function(plate, netId)
+    if not ProtectedEvent() then return end
+    local src = source
+    if not plate or not netId then return end
+    
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if vehicle and DoesEntityExist(vehicle) then
+        GiveVehicleKeys(src, plate, vehicle)
+    end
 end)
 
 RegisterNetEvent("gfx-rental:server:refundOnClientFail", function(plate)
@@ -124,6 +140,10 @@ RegisterNetEvent("gfx-rental:server:attemptReturn", function(plate)
 
     if Config.VehicleKeys == 'renewed' then
         exports['Renewed-Vehiclekeys']:removeKey(src, plate)
+    elseif Config.VehicleKeys == 'qbx' then
+        -- For qbx_vehiclekeys, the keys are handled by the resource itself
+        -- Keys will be removed when vehicle is deleted if using item-based keys
+        -- or will be removed from state when player loses access
     else
         for _, item in pairs(Player.PlayerData.items or {}) do
             local itemPlate = (item.info and item.info.plate) or (item.metadata and item.metadata.plate)

@@ -9,7 +9,7 @@ Config.VehicleKeys = 'qbx'
 Config.PedModel = "u_m_y_smugmech_01"
 
 Config.RentalLocations = {
-    { coords = vec4(137.45, -1056.58, 29.19, 129.35), blip = 227, colour = 3, scale = 0.7 },
+    { coords = vec4(135.36, -1057.64, 29.19, 218.85), blip = 227, colour = 3, scale = 0.7 },
 }
 
 Config.Cars = {

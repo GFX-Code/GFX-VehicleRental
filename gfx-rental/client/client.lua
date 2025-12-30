@@ -62,8 +62,13 @@ RegisterNetEvent("gfx-rental:client:spawnVehicle", function(vehicleData)
         SetEntityAsMissionEntity(veh, true, true)
         SetVehicleDoorsLocked(veh, 1)
 
+        -- Give keys after vehicle is spawned
         if Config.VehicleKeys == 'renewed' then
             exports['Renewed-Vehiclekeys']:addKey(plate)
+        elseif Config.VehicleKeys == 'qbx' then
+            -- Wait for vehicle to be networked then give keys on server
+            local netId = NetworkGetNetworkIdFromEntity(veh)
+            TriggerServerEvent("gfx-rental:server:giveKeysAfterSpawn", plate, netId)
         end
 
         table.insert(spawnedVehicles, { vehicle = veh, plate = plate, model = car.model, price = price })

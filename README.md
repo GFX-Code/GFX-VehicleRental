@@ -22,5 +22,6 @@ Add to your ox_inventory/data/items.lua
   description = "Rental papers for a vehicle",
 },
 ```
+If you still have issues, please join https://discord.gg/DxWuEpjCqW
 
 Please do not attempt to sell this script! 
